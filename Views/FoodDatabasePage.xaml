@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentPage
+    x:Class="RecipeApp.Views.FoodDatabasePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:RecipeApp.ViewModels"
+    xmlns:models="clr-namespace:RecipeApp.Models"
+    xmlns:conv="clr-namespace:RecipeApp.Converters"
+    Title="База продуктов">
+
+    <ContentPage.Resources>
+        <conv:InverseBoolConverter x:Key="InvBool"/>
+        <conv:NullToBoolConverter  x:Key="NullBool"/>
+    </ContentPage.Resources>
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="+ Добавить" Clicked="OnAddClicked"/>
+    </ContentPage.ToolbarItems>
+
+    <Grid RowDefinitions="Auto,Auto,*">
+
+        <!-- Search -->
+        <SearchBar Grid.Row="0"
+                   Placeholder="Поиск продуктов..."
+                   Text="{Binding SearchText}"
+                   Margin="8,8,8,0"/>
+
+        <!-- Category filter -->
+        <Picker Grid.Row="1"
+                ItemsSource="{Binding Categories}"
+                SelectedItem="{Binding SelectedCategory}"
+                Margin="8,4"/>
+
+        <!-- Product list -->
+        <RefreshView Grid.Row="2"
+                     Command="{Binding LoadCommand}"
+                     IsRefreshing="{Binding IsLoading, Mode=OneWay}">
+            <CollectionView ItemsSource="{Binding Items}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:FoodItem">
+                        <SwipeView>
+                            <SwipeView.RightItems>
+                                <SwipeItems>
+                                    <SwipeItem Text="Удалить"
+                                               BackgroundColor="{StaticResource Danger}"
+                                               Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteItemCommand}"
+                                               CommandParameter="{Binding .}"/>
+                                </SwipeItems>
+                            </SwipeView.RightItems>
+                            <Grid Padding="16,10" ColumnDefinitions="*,Auto"
+                                  BackgroundColor="{StaticResource Surface}">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="{Binding Name}"
+                                           FontAttributes="Bold" FontSize="15"
+                                           TextColor="{StaticResource TextPrimary}"/>
+                                    <Label Text="{Binding Category}"
+                                           FontSize="12" TextColor="{StaticResource Primary}"/>
+                                    <HorizontalStackLayout Spacing="8">
+                                        <Label Text="{Binding CaloriesPer100, StringFormat='{0:0} ккал'}"
+                                               FontSize="12" TextColor="{StaticResource CaloriesText}"/>
+                                        <Label Text="{Binding ProteinPer100, StringFormat='Б:{0:0.#}'}"
+                                               FontSize="12" TextColor="{StaticResource ProteinText}"/>
+                                        <Label Text="{Binding FatPer100, StringFormat='Ж:{0:0.#}'}"
+                                               FontSize="12" TextColor="{StaticResource FatText}"/>
+                                        <Label Text="{Binding CarbsPer100, StringFormat='У:{0:0.#}'}"
+                                               FontSize="12" TextColor="{StaticResource CarbsText}"/>
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+                                <Button Grid.Column="1"
+                                        Text="✎"
+                                        Style="{StaticResource IconButton}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.StartEditCommand}"
+                                        CommandParameter="{Binding .}"/>
+                            </Grid>
+                        </SwipeView>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+    </Grid>
+
+    <!-- Edit/Add bottom sheet -->
+    <ContentPage.Shell.TitleView>
+        <Grid/>
+    </ContentPage.Shell.TitleView>
+
+</ContentPage>

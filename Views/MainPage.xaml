@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentPage
+    x:Class="RecipeApp.Views.MainPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:RecipeApp.ViewModels"
+    xmlns:models="clr-namespace:RecipeApp.Models"
+    xmlns:conv="clr-namespace:RecipeApp.Converters"
+    Title="Книга рецептов">
+
+    <ContentPage.Resources>
+        <conv:NullToBoolConverter    x:Key="NullBool"/>
+        <conv:InverseBoolConverter   x:Key="InvBool"/>
+        <conv:MinutesToTimeConverter x:Key="MinTime"/>
+        <conv:ImagePathConverter     x:Key="ImgPath"/>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- ── Header ── -->
+        <Grid Grid.Row="0" BackgroundColor="{StaticResource Primary}"
+              Padding="16,12,8,12" ColumnDefinitions="*,Auto,Auto,Auto">
+            <Label Grid.Column="0"
+                   Text="🍴 Книга рецептов"
+                   Style="{StaticResource PageTitleLabel}"
+                   VerticalOptions="Center"/>
+            <Button Grid.Column="1"
+                    Text="＋"
+                    Style="{StaticResource IconButton}"
+                    TextColor="{StaticResource TextOnPrimary}"
+                    FontSize="24"
+                    Command="{Binding AddRecipeCommand}"
+                    ToolTipProperties.Text="Новый рецепт"/>
+            <Button Grid.Column="2"
+                    Text="↓"
+                    Style="{StaticResource IconButton}"
+                    TextColor="{StaticResource TextOnPrimary}"
+                    FontSize="20"
+                    Command="{Binding ImportRecipeCommand}"
+                    ToolTipProperties.Text="Импорт рецепта"/>
+            <Button Grid.Column="3"
+                    Text="⋮"
+                    Style="{StaticResource IconButton}"
+                    TextColor="{StaticResource TextOnPrimary}"
+                    FontSize="24"
+                    Clicked="OnMenuClicked"/>
+        </Grid>
+
+        <!-- ── Body ── -->
+        <Grid Grid.Row="1" ColumnDefinitions="{OnIdiom Phone='*', Tablet='320,*', Default='*'}">
+
+            <!-- Left: recipe list -->
+            <Grid Grid.Column="0" RowDefinitions="Auto,Auto,*">
+
+                <!-- Search -->
+                <SearchBar Grid.Row="0"
+                           Placeholder="Поиск рецептов..."
+                           Text="{Binding SearchText}"
+                           Margin="8,8,8,0"/>
+
+                <!-- Category filter -->
+                <Picker Grid.Row="1"
+                        ItemsSource="{Binding Categories}"
+                        SelectedItem="{Binding SelectedCategory}"
+                        Margin="8,4,8,4"/>
+
+                <!-- Loading -->
+                <ActivityIndicator Grid.Row="2"
+                                   IsRunning="{Binding IsLoading}"
+                                   IsVisible="{Binding IsLoading}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+
+                <!-- Empty state -->
+                <VerticalStackLayout Grid.Row="2"
+                                     IsVisible="{Binding IsLoading, Converter={StaticResource InvBool}}"
+                                     VerticalOptions="Center"
+                                     HorizontalOptions="Center"
+                                     Spacing="8">
+                    <VerticalStackLayout.Triggers>
+                        <DataTrigger TargetType="VerticalStackLayout"
+                                     Binding="{Binding Recipes.Count}"
+                                     Value="0">
+                            <Setter Property="IsVisible" Value="True"/>
+                        </DataTrigger>
+                    </VerticalStackLayout.Triggers>
+                    <Label Text="🍽️" FontSize="48" HorizontalOptions="Center"/>
+                    <Label Text="Нет рецептов" Style="{StaticResource SectionTitle}"
+                           HorizontalOptions="Center"/>
+                    <Label Text="Нажмите + чтобы добавить первый рецепт"
+                           Style="{StaticResource CaptionLabel}"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+
+                <!-- Recipe list -->
+                <RefreshView Grid.Row="2"
+                             Command="{Binding LoadCommand}"
+                             IsRefreshing="{Binding IsLoading}">
+                    <CollectionView
+                        ItemsSource="{Binding Recipes}"
+                        SelectionMode="Single"
+                        SelectedItem="{Binding SelectedRecipe}"
+                        SelectionChangedCommand="{Binding OpenRecipeCommand}"
+                        SelectionChangedCommandParameter="{Binding SelectedRecipe}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Recipe">
+                                <SwipeView>
+                                    <SwipeView.RightItems>
+                                        <SwipeItems>
+                                            <SwipeItem Text="Удалить"
+                                                       BackgroundColor="{StaticResource Danger}"
+                                                       Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteRecipeCommand}"
+                                                       CommandParameter="{Binding .}"/>
+                                        </SwipeItems>
+                                    </SwipeView.RightItems>
+                                    <Grid Padding="12,10" ColumnDefinitions="56,*,Auto"
+                                          BackgroundColor="{StaticResource Surface}">
+                                        <!-- Thumbnail -->
+                                        <Frame Grid.Column="0"
+                                               CornerRadius="8"
+                                               Padding="0"
+                                               IsClippedToBounds="True"
+                                               WidthRequest="56"
+                                               HeightRequest="56"
+                                               HasShadow="False"
+                                               BorderColor="{StaticResource Border}">
+                                            <Image Source="{Binding ImagePath, Converter={StaticResource ImgPath}}"
+                                                   Aspect="AspectFill"
+                                                   IsVisible="{Binding ImagePath, Converter={StaticResource NullBool}}"/>
+                                            <Label Text="🍽️"
+                                                   FontSize="28"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center"
+                                                   IsVisible="{Binding ImagePath, Converter={StaticResource NullBool}, ConverterParameter=Inverse}"/>
+                                        </Frame>
+                                        <!-- Info -->
+                                        <VerticalStackLayout Grid.Column="1"
+                                                             Padding="10,0,0,0"
+                                                             Spacing="2"
+                                                             VerticalOptions="Center">
+                                            <Label Text="{Binding Title}"
+                                                   FontAttributes="Bold"
+                                                   FontSize="15"
+                                                   TextColor="{StaticResource TextPrimary}"
+                                                   LineBreakMode="TailTruncation"/>
+                                            <Label Text="{Binding Category}"
+                                                   FontSize="12"
+                                                   TextColor="{StaticResource Primary}"/>
+                                            <HorizontalStackLayout Spacing="8">
+                                                <Label Text="{Binding TotalTimeMinutes, Converter={StaticResource MinTime}}"
+                                                       FontSize="12"
+                                                       TextColor="{StaticResource TextSecondary}"/>
+                                                <Label Text="{Binding TotalCalories, StringFormat='{0:0} ккал'}"
+                                                       FontSize="12"
+                                                       TextColor="{StaticResource TextSecondary}"/>
+                                            </HorizontalStackLayout>
+                                        </VerticalStackLayout>
+                                        <!-- Chevron -->
+                                        <Label Grid.Column="2"
+                                               Text="›"
+                                               FontSize="22"
+                                               TextColor="{StaticResource TextSecondary}"
+                                               VerticalOptions="Center"/>
+                                    </Grid>
+                                </SwipeView>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </RefreshView>
+            </Grid>
+
+            <!-- Right: detail panel (tablet only) -->
+            <ContentView Grid.Column="1"
+                         IsVisible="{OnIdiom Phone=False, Tablet=True, Default=False}"
+                         BackgroundColor="{StaticResource Background}">
+                <Label Text="Выберите рецепт"
+                       Style="{StaticResource CaptionLabel}"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       IsVisible="{Binding SelectedRecipe, Converter={StaticResource NullBool}, ConverterParameter=Inverse}"/>
+            </ContentView>
+
+        </Grid>
+    </Grid>
+
+</ContentPage>

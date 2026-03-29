@@ -1,0 +1,44 @@
+## .NET MAUI / .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+TestResults/
+*.nupkg
+*.snupkg
+
+## Rider / JetBrains
+.idea/
+
+## VS Code
+.vscode/
+!.vscode/extensions.json
+
+## Build artifacts
+publish/
+artifacts/
+
+## Android
+*.apk
+*.aab
+*.jks
+*.keystore
+recipeapp.keystore
+
+## iOS
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+## macOS
+.DS_Store
+
+## Database (local user data)
+*.db
+*.db-shm
+*.db-wal
+
+## User secrets / env
+*.env
+secrets.json

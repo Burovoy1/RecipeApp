@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentPage
+    x:Class="RecipeApp.Views.ImportRecipePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:RecipeApp.ViewModels"
+    xmlns:models="clr-namespace:RecipeApp.Services"
+    xmlns:conv="clr-namespace:RecipeApp.Converters"
+    Title="Импорт рецепта">
+
+    <ContentPage.Resources>
+        <conv:NullToBoolConverter    x:Key="NullBool"/>
+        <conv:InverseBoolConverter   x:Key="InvBool"/>
+        <conv:ImagePathConverter     x:Key="ImgPath"/>
+        <conv:PositiveToBoolConverter x:Key="PosBool"/>
+    </ContentPage.Resources>
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Сохранить" Clicked="OnSaveClicked"/>
+    </ContentPage.ToolbarItems>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12">
+
+            <!-- URL Input -->
+            <Frame Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Ссылка на рецепт" Style="{StaticResource SectionTitle}"/>
+                    <Entry Placeholder="https://..."
+                           Text="{Binding Url}"
+                           Keyboard="Url"
+                           ReturnType="Go"
+                           ReturnCommand="{Binding ImportCommand}"/>
+                    <Button Text="Загрузить"
+                            Style="{StaticResource PrimaryButton}"
+                            Command="{Binding ImportCommand}"
+                            IsEnabled="{Binding IsLoading, Converter={StaticResource InvBool}}"
+                            HorizontalOptions="Fill"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Loading -->
+            <ActivityIndicator IsRunning="{Binding IsLoading}"
+                               IsVisible="{Binding IsLoading}"
+                               HorizontalOptions="Center"
+                               Margin="0,16"/>
+
+            <!-- Error -->
+            <Frame BackgroundColor="{StaticResource DangerLight}"
+                   BorderColor="{StaticResource Danger}"
+                   CornerRadius="8" Padding="12" HasShadow="False"
+                   IsVisible="{Binding HasError}">
+                <Label Text="{Binding ErrorMessage}"
+                       TextColor="{StaticResource Danger}" FontSize="14"/>
+            </Frame>
+
+            <!-- Result preview -->
+            <VerticalStackLayout IsVisible="{Binding HasResult}" Spacing="12">
+
+                <!-- Success banner -->
+                <Frame BackgroundColor="{StaticResource SuccessLight}"
+                       BorderColor="{StaticResource Success}"
+                       CornerRadius="8" Padding="12" HasShadow="False">
+                    <Label TextColor="{StaticResource Success}" FontSize="14">
+                        <Label.Text>
+                            <MultiBinding StringFormat="Найдено ингредиентов: {0}, шагов: {1}">
+                                <Binding Path="Ingredients.Count"/>
+                                <Binding Path="Steps.Count"/>
+                            </MultiBinding>
+                        </Label.Text>
+                    </Label>
+                </Frame>
+
+                <!-- Preview card -->
+                <Frame Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="8">
+                        <!-- Image -->
+                        <Image Source="{Binding ImagePath, Converter={StaticResource ImgPath}}"
+                               Aspect="AspectFill"
+                               HeightRequest="180"
+                               IsVisible="{Binding ImagePath, Converter={StaticResource NullBool}}"/>
+
+                        <!-- Title (editable) -->
+                        <Label Text="Название" Style="{StaticResource CaptionLabel}"/>
+                        <Entry Text="{Binding Title}"/>
+
+                        <!-- Description (editable) -->
+                        <Label Text="Описание" Style="{StaticResource CaptionLabel}"/>
+                        <Editor Text="{Binding Description}"
+                                HeightRequest="70" AutoSize="TextChanges"/>
+
+                        <!-- Meta -->
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                            <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                <Label Text="Подготовка (мин)" Style="{StaticResource CaptionLabel}"/>
+                                <Entry Text="{Binding PrepTime}" Keyboard="Numeric"/>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                <Label Text="Готовка (мин)" Style="{StaticResource CaptionLabel}"/>
+                                <Entry Text="{Binding CookTime}" Keyboard="Numeric"/>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="2" Spacing="4">
+                                <Label Text="Порции" Style="{StaticResource CaptionLabel}"/>
+                                <Entry Text="{Binding Servings}" Keyboard="Numeric"/>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <!-- Nutrition (if available) -->
+                        <Frame BackgroundColor="{StaticResource PrimaryLight}"
+                               BorderColor="Transparent" CornerRadius="8" Padding="10,8" HasShadow="False"
+                               IsVisible="{Binding HasNutrition}">
+                            <Grid ColumnDefinitions="*,*,*,*">
+                                <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center">
+                                    <Label Text="{Binding Calories, StringFormat='{0:0}'}"
+                                           FontAttributes="Bold" FontSize="16"
+                                           TextColor="{StaticResource CaloriesText}" HorizontalOptions="Center"/>
+                                    <Label Text="ккал" FontSize="11"
+                                           TextColor="{StaticResource CaloriesText}" HorizontalOptions="Center"/>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center">
+                                    <Label Text="{Binding Protein, StringFormat='{0:0.#}'}"
+                                           FontAttributes="Bold" FontSize="14"
+                                           TextColor="{StaticResource ProteinText}" HorizontalOptions="Center"/>
+                                    <Label Text="белки" FontSize="11"
+                                           TextColor="{StaticResource ProteinText}" HorizontalOptions="Center"/>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center">
+                                    <Label Text="{Binding Fat, StringFormat='{0:0.#}'}"
+                                           FontAttributes="Bold" FontSize="14"
+                                           TextColor="{StaticResource FatText}" HorizontalOptions="Center"/>
+                                    <Label Text="жиры" FontSize="11"
+                                           TextColor="{StaticResource FatText}" HorizontalOptions="Center"/>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="3" HorizontalOptions="Center">
+                                    <Label Text="{Binding Carbs, StringFormat='{0:0.#}'}"
+                                           FontAttributes="Bold" FontSize="14"
+                                           TextColor="{StaticResource CarbsText}" HorizontalOptions="Center"/>
+                                    <Label Text="углев." FontSize="11"
+                                           TextColor="{StaticResource CarbsText}" HorizontalOptions="Center"/>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Frame>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Ingredients -->
+                <Label Text="Ингредиенты" Style="{StaticResource SectionTitle}"/>
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Ingredients}" Spacing="4">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate>
+                            <Frame Style="{StaticResource Card}" Padding="10,8">
+                                <Grid ColumnDefinitions="*,Auto,Auto,Auto">
+                                    <Label Grid.Column="0"
+                                           Text="{Binding Name}"
+                                           Style="{StaticResource BodyLabel}"
+                                           VerticalOptions="Center"/>
+                                    <Label Grid.Column="1"
+                                           Text="{Binding Amount}"
+                                           TextColor="{StaticResource TextSecondary}"
+                                           FontSize="13" VerticalOptions="Center" Margin="4,0"/>
+                                    <Label Grid.Column="2"
+                                           Text="{Binding Unit}"
+                                           TextColor="{StaticResource TextSecondary}"
+                                           FontSize="13" VerticalOptions="Center"/>
+                                    <Button Grid.Column="3"
+                                            Text="✕"
+                                            Style="{StaticResource IconButton}"
+                                            TextColor="{StaticResource Danger}"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveIngredientCommand}"
+                                            CommandParameter="{Binding .}"/>
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <!-- Steps -->
+                <Label Text="Шаги" Style="{StaticResource SectionTitle}"/>
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Steps}" Spacing="8">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <Grid ColumnDefinitions="36,*,Auto" ColumnSpacing="10">
+                                <Frame Grid.Column="0"
+                                       BackgroundColor="{StaticResource Primary}"
+                                       BorderColor="Transparent" CornerRadius="18"
+                                       WidthRequest="36" HeightRequest="36"
+                                       Padding="0" HasShadow="False" HorizontalOptions="Center">
+                                    <Label Text="{Binding Source={RelativeSource Self}, Path=Parent.Parent.Parent.BindingContext}"
+                                           TextColor="White" FontAttributes="Bold" FontSize="14"
+                                           HorizontalOptions="Center" VerticalOptions="Center"/>
+                                </Frame>
+                                <Label Grid.Column="1" Text="{Binding .}"
+                                       Style="{StaticResource BodyLabel}"
+                                       VerticalOptions="Center"/>
+                                <Button Grid.Column="2" Text="✕"
+                                        Style="{StaticResource IconButton}"
+                                        TextColor="{StaticResource Danger}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveStepCommand}"
+                                        CommandParameter="{Binding .}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+
+            <BoxView HeightRequest="40" Opacity="0"/>
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

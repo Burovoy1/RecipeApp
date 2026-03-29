@@ -1,5 +1,4 @@
 using CommunityToolkit.Maui;
-using Microsoft.Extensions.Logging;
 using RecipeApp.Data;
 using RecipeApp.Views;
 using RecipeApp.ViewModels;
@@ -14,7 +13,7 @@ public static class MauiProgram
         builder
             .UseMauiApp<App>()
             .UseMauiCommunityToolkit()
-            .ConfigureFonts(fonts => { }); // add custom fonts to Resources/Fonts/ if needed
+            .ConfigureFonts(fonts => { });
 
         // Database — singleton so schema is created once
         builder.Services.AddSingleton<RecipeDbContext>(sp =>
@@ -38,10 +37,6 @@ public static class MauiProgram
         builder.Services.AddTransient<FoodDatabaseViewModel>();
         builder.Services.AddTransient<ImportRecipeViewModel>();
         builder.Services.AddTransient<NutritionViewModel>();
-
-#if DEBUG
-        builder.Logging.AddDebug();
-#endif
 
         return builder.Build();
     }

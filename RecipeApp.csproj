@@ -36,7 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Microsoft.Maui.Controls is provided implicitly by UseMaui=true -->
+    <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
     <PackageReference Include="CommunityToolkit.Maui" Version="9.1.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.0" />

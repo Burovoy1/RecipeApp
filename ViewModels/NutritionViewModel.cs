@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using RecipeApp.Models;
@@ -82,11 +82,10 @@ public partial class NutritionViewModel : ObservableObject
                .OrderBy(g => g.Key switch {
                    "Завтрак" => 0, "Обед" => 1, "Ужин" => 2, _ => 3 });
 
-    public static IEnumerable<string> GenderOptions    => new[] { "Мужской", "Женский" };
-    public static IEnumerable<string> ActivityOptions  => new[] { "Сидячий", "Полуактивный", "Активный", "Спортивный" };
-    public static IEnumerable<string> MealTypeOptions  => new[] { "Завтрак", "Обед", "Ужин", "Перекус" };
-    public static IEnumerable<string> UnitOptions      => new[] { "г", "мл", "шт", "ст.л.", "ч.л." };
-    public static IEnumerable<string> AddModeOptions    => new[] { "ingredient", "recipe", "manual" };
+    public static IList<string> GenderOptions   => new[] { "Мужской", "Женский" };
+    public static IList<string> ActivityOptions => new[] { "Сидячий", "Малоактивный", "Полуактивный", "Активный", "Очень активный" };
+    public static IList<string> MealTypeOptions => new[] { "Завтрак", "Обед", "Ужин", "Перекус" };
+    public static IList<string> UnitOptions     => new[] { "г", "мл", "шт", "ст.л.", "ч.л." };
 
     public NutritionViewModel()
     {
@@ -325,4 +324,3 @@ public partial class NutritionViewModel : ObservableObject
         return v;
     }
 }
-

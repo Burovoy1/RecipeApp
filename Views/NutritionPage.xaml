@@ -53,28 +53,13 @@
                         <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
                             <VerticalStackLayout Grid.Column="0" Spacing="4">
                                 <Label Text="Пол" Style="{StaticResource CaptionLabel}"/>
-                                <Picker SelectedItem="{Binding ProfileGender}">
-                                    <Picker.ItemsSource>
-                                        <x:Array Type="{x:Type x:String}">
-                                            <x:String>Мужской</x:String>
-                                            <x:String>Женский</x:String>
-                                        </x:Array>
-                                    </Picker.ItemsSource>
-                                </Picker>
+                                <Picker SelectedItem="{Binding ProfileGender}"
+                                        ItemsSource="{x:Static vm:NutritionViewModel.GenderOptions}"/>
                             </VerticalStackLayout>
                             <VerticalStackLayout Grid.Column="1" Spacing="4">
                                 <Label Text="Активность" Style="{StaticResource CaptionLabel}"/>
-                                <Picker SelectedItem="{Binding ProfileActivity}">
-                                    <Picker.ItemsSource>
-                                        <x:Array Type="{x:Type x:String}">
-                                            <x:String>Сидячий</x:String>
-                                            <x:String>Малоактивный</x:String>
-                                            <x:String>Полуактивный</x:String>
-                                            <x:String>Активный</x:String>
-                                            <x:String>Очень активный</x:String>
-                                        </x:Array>
-                                    </Picker.ItemsSource>
-                                </Picker>
+                                <Picker SelectedItem="{Binding ProfileActivity}"
+                                        ItemsSource="{x:Static vm:NutritionViewModel.ActivityOptions}"/>
                             </VerticalStackLayout>
                         </Grid>
                         <Button Text="Сохранить профиль"
@@ -203,16 +188,9 @@
                     </Grid>
 
                     <!-- Meal type -->
-                    <Picker Title="Приём пищи" SelectedItem="{Binding NewMealType}">
-                        <Picker.ItemsSource>
-                            <x:Array Type="{x:Type x:String}">
-                                <x:String>Завтрак</x:String>
-                                <x:String>Обед</x:String>
-                                <x:String>Ужин</x:String>
-                                <x:String>Перекус</x:String>
-                            </x:Array>
-                        </Picker.ItemsSource>
-                    </Picker>
+                    <Picker Title="Приём пищи"
+                            SelectedItem="{Binding NewMealType}"
+                            ItemsSource="{x:Static vm:NutritionViewModel.MealTypeOptions}"/>
 
                     <!-- Mode selector -->
                     <HorizontalStackLayout Spacing="8">
@@ -242,17 +220,9 @@
                         <Grid ColumnDefinitions="*,80" ColumnSpacing="8">
                             <Entry Grid.Column="0" Placeholder="Кол-во"
                                    Text="{Binding NewFoodAmount}" Keyboard="Numeric"/>
-                            <Picker Grid.Column="1" SelectedItem="{Binding NewFoodUnit}">
-                                <Picker.ItemsSource>
-                                    <x:Array Type="{x:Type x:String}">
-                                        <x:String>г</x:String>
-                                        <x:String>мл</x:String>
-                                        <x:String>шт</x:String>
-                                        <x:String>ст.л.</x:String>
-                                        <x:String>ч.л.</x:String>
-                                    </x:Array>
-                                </Picker.ItemsSource>
-                            </Picker>
+                            <Picker Grid.Column="1"
+                                    SelectedItem="{Binding NewFoodUnit}"
+                                    ItemsSource="{x:Static vm:NutritionViewModel.UnitOptions}"/>
                         </Grid>
                     </VerticalStackLayout>
 

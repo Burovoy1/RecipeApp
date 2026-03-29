@@ -29,7 +29,7 @@ jobs:
 
       # ── 4. Restore ───────────────────────────────────────────────────
       - name: Restore NuGet packages
-        run: dotnet restore RecipeApp.csproj -f net8.0-android
+        run: dotnet restore RecipeApp.csproj -p:TargetFramework=net8.0-android
 
       # ── 5a. Debug build (every push) ─────────────────────────────────
       - name: Build Debug APK
@@ -49,7 +49,6 @@ jobs:
           KEYSTORE_PASS:   ${{ secrets.KEYSTORE_PASS }}
           KEY_PASS:        ${{ secrets.KEY_PASS }}
         run: |
-          # Decode keystore from base64 secret
           echo "$KEYSTORE_BASE64" | base64 --decode > recipeapp.keystore
 
           dotnet publish RecipeApp.csproj \
@@ -62,7 +61,6 @@ jobs:
             -p:AndroidSigningKeyPass="$KEY_PASS" \
             -p:AndroidSigningStorePass="$KEYSTORE_PASS"
 
-          # Clean up keystore
           rm -f recipeapp.keystore
 
       # ── 6. Find APK ───────────────────────────────────────────────────

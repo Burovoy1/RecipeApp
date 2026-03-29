@@ -17,11 +17,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ── 2. .NET 8 ────────────────────────────────────────────────────
-      - name: Setup .NET 8
+      # ── 2. .NET 9 ────────────────────────────────────────────────────
+      - name: Setup .NET 9
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '9.0.x'
 
       # ── 3. MAUI Android workload ──────────────────────────────────────
       - name: Install MAUI Android workload
@@ -29,14 +29,14 @@ jobs:
 
       # ── 4. Restore ───────────────────────────────────────────────────
       - name: Restore NuGet packages
-        run: dotnet restore RecipeApp.csproj -p:TargetFramework=net8.0-android
+        run: dotnet restore RecipeApp.csproj -p:TargetFramework=net9.0-android
 
       # ── 5a. Debug build (every push) ─────────────────────────────────
       - name: Build Debug APK
         if: github.event_name != 'release'
         run: |
           dotnet build RecipeApp.csproj \
-            -f net8.0-android \
+            -f net9.0-android \
             -c Debug \
             -p:AndroidPackageFormat=apk
 
@@ -52,7 +52,7 @@ jobs:
           echo "$KEYSTORE_BASE64" | base64 --decode > recipeapp.keystore
 
           dotnet publish RecipeApp.csproj \
-            -f net8.0-android \
+            -f net9.0-android \
             -c Release \
             -p:AndroidPackageFormat=apk \
             -p:AndroidKeyStore=true \
@@ -73,8 +73,8 @@ jobs:
         with:
           name: RecipeApp-${{ github.event_name == 'release' && 'release' || 'debug' }}-apk
           path: |
-            bin/Debug/net8.0-android/*.apk
-            bin/Release/net8.0-android/publish/*.apk
+            bin/Debug/net9.0-android/*.apk
+            bin/Release/net9.0-android/publish/*.apk
           if-no-files-found: warn
           retention-days: 14
 
@@ -83,4 +83,4 @@ jobs:
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
-          files: bin/Release/net8.0-android/publish/*.apk
+          files: bin/Release/net9.0-android/publish/*.apk

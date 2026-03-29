@@ -27,16 +27,20 @@ jobs:
       - name: Install MAUI Android workload
         run: dotnet workload install maui-android
 
-      # ── 4. Restore ───────────────────────────────────────────────────
+      # ── 4. Restore (Android only) ────────────────────────────────────
+      # -p:TargetFrameworks overrides the multi-target list so MSBuild
+      # does not try to resolve iOS/macOS workloads on ubuntu
       - name: Restore NuGet packages
-        run: dotnet restore RecipeApp.csproj -p:TargetFramework=net9.0-android
+        run: |
+          dotnet restore RecipeApp.csproj \
+            -p:TargetFrameworks=net9.0-android
 
       # ── 5a. Debug build (every push) ─────────────────────────────────
       - name: Build Debug APK
         if: github.event_name != 'release'
         run: |
           dotnet build RecipeApp.csproj \
-            -f net9.0-android \
+            -p:TargetFrameworks=net9.0-android \
             -c Debug \
             -p:AndroidPackageFormat=apk
 
@@ -52,7 +56,7 @@ jobs:
           echo "$KEYSTORE_BASE64" | base64 --decode > recipeapp.keystore
 
           dotnet publish RecipeApp.csproj \
-            -f net9.0-android \
+            -p:TargetFrameworks=net9.0-android \
             -c Release \
             -p:AndroidPackageFormat=apk \
             -p:AndroidKeyStore=true \

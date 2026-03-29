@@ -35,23 +35,25 @@
                        FontAttributes="Bold"
                        TextColor="{StaticResource TextPrimary}"/>
 
-                <!-- Meta chips -->
-                <FlexLayout Wrap="Wrap" Direction="Row" Gap="8">
-                    <Frame Style="{StaticResource Chip}">
+                <!-- Meta chips (Gap not supported — use Margin on children) -->
+                <FlexLayout Wrap="Wrap" Direction="Row">
+                    <Frame Style="{StaticResource Chip}" Margin="0,0,8,8">
                         <Label Text="{Binding Category}" FontSize="13"
                                TextColor="{StaticResource Primary}"/>
                     </Frame>
                     <Frame Style="{StaticResource Chip}"
+                           Margin="0,0,8,8"
                            IsVisible="{Binding TotalTimeMinutes, Converter={StaticResource PosBool}}">
                         <Label Text="{Binding TotalTimeMinutes, Converter={StaticResource MinTime}}"
                                FontSize="13" TextColor="{StaticResource TextSecondary}"/>
                     </Frame>
                     <Frame Style="{StaticResource Chip}"
+                           Margin="0,0,8,8"
                            IsVisible="{Binding Servings, Converter={StaticResource PosBool}}">
                         <Label Text="{Binding Servings, StringFormat='{0} порц.'}"
                                FontSize="13" TextColor="{StaticResource TextSecondary}"/>
                     </Frame>
-                    <Frame Style="{StaticResource Chip}">
+                    <Frame Style="{StaticResource Chip}" Margin="0,0,8,8">
                         <Label Text="{Binding Difficulty}"
                                FontSize="13" TextColor="{StaticResource TextSecondary}"/>
                     </Frame>

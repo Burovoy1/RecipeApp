@@ -29,7 +29,6 @@ public class NutritionService
 
             if (existing == null)
             {
-                // Первое сохранение — просто добавляем
                 var newProfile = new UserProfile
                 {
                     Name     = profile.Name,
@@ -43,7 +42,6 @@ public class NutritionService
             }
             else
             {
-                // Обновляем поля существующей записи
                 existing.Name     = profile.Name;
                 existing.Age      = profile.Age;
                 existing.Weight   = profile.Weight;
@@ -57,10 +55,7 @@ public class NutritionService
         }
         catch (Exception ex)
         {
-            System.Windows.MessageBox.Show(
-                $"Ошибка сохранения профиля:\n{ex.Message}",
-                "Ошибка", System.Windows.MessageBoxButton.OK,
-                System.Windows.MessageBoxImage.Error);
+            System.Diagnostics.Debug.WriteLine($"Ошибка сохранения профиля: {ex.Message}");
         }
     }
 

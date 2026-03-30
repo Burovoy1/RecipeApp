@@ -11,6 +11,9 @@ public partial class NutritionPage : ContentPage
         InitializeComponent();
         _vm = vm;
         BindingContext = _vm;
+
+        _vm.OnAddError += async msg =>
+            await DisplayAlert("Ошибка", msg, "OK");
     }
 
     protected override void OnAppearing()

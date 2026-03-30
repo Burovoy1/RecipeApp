@@ -61,6 +61,7 @@ public partial class EditRecipeViewModel : ObservableObject
 
     public bool IsSaved { get; private set; }
     public event Action<string>? OnIngredientSavedToDb;
+    public event Action<string>? OnPickImageError;
 
     public EditRecipeViewModel()
     {
@@ -213,17 +214,32 @@ public partial class EditRecipeViewModel : ObservableObject
     {
         try
         {
+            // Explicit permission request for Android < 13
+            var status = await Permissions.RequestAsync<Permissions.Photos>();
+            if (status != PermissionStatus.Granted)
+            {
+                OnPickImageError?.Invoke("Нет разрешения на доступ к фото. Разрешите доступ в настройках приложения.");
+                return;
+            }
+
             var result = await MediaPicker.Default.PickPhotoAsync(new MediaPickerOptions
             {
                 Title = "Выберите изображение рецепта"
             });
+
             if (result != null)
             {
                 var destDir  = FileSystem.AppDataDirectory;
-                var destPath = Path.Combine(destDir, result.FileName);
+                // Use unique name to avoid overwriting previous photos
+                var ext      = Path.GetExtension(result.FileName);
+                var fileName = $"recipe_{DateTime.Now:yyyyMMdd_HHmmss}{ext}";
+                var destPath = Path.Combine(destDir, fileName);
+
                 using var src = await result.OpenReadAsync();
-                using var dst = File.OpenWrite(destPath);
+                // File.Create truncates existing file properly (unlike File.OpenWrite)
+                using var dst = File.Create(destPath);
                 await src.CopyToAsync(dst);
+
                 ImagePath = destPath;
             }
         }
@@ -236,8 +252,6 @@ public partial class EditRecipeViewModel : ObservableObject
             OnPickImageError?.Invoke($"Не удалось открыть фото: {ex.Message}");
         }
     }
-
-    public event Action<string>? OnPickImageError;
 
     [RelayCommand]
     public async Task SaveAsync()

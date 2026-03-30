@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using RecipeApp.Models;
@@ -29,6 +29,9 @@ public partial class FoodDatabaseViewModel : ObservableObject
     [ObservableProperty] private string _editDefaultUnit = "г";
 
     public event Action<string>? OnSaveError;
+    // Raised after StartAdd/StartEdit so code-behind can open the modal dialog
+    public event Action? OnEditRequested;
+
     public static IEnumerable<string> UnitOptions => new[]
         { "г", "мл", "шт", "ст.л.", "ч.л." };
 
@@ -65,6 +68,7 @@ public partial class FoodDatabaseViewModel : ObservableObject
         EditName = EditCategory = EditCalories = EditProtein = EditFat = EditCarbs = string.Empty;
         EditDefaultUnit = "г";
         IsEditing = true;
+        OnEditRequested?.Invoke();
     }
 
     [RelayCommand]
@@ -79,7 +83,8 @@ public partial class FoodDatabaseViewModel : ObservableObject
         EditFat         = item.FatPer100.ToString("0.#");
         EditCarbs       = item.CarbsPer100.ToString("0.#");
         EditDefaultUnit = item.DefaultUnit;
-        IsEditing = true;
+        IsEditing       = true;
+        OnEditRequested?.Invoke();
     }
 
     [RelayCommand]
@@ -134,4 +139,3 @@ public partial class FoodDatabaseViewModel : ObservableObject
         return v;
     }
 }
-

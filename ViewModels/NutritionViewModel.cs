@@ -8,16 +8,16 @@ namespace RecipeApp.ViewModels;
 
 public partial class NutritionViewModel : ObservableObject
 {
-    private readonly NutritionService _service  = new();
-    private readonly FoodItemService  _foodSvc  = new();
+    private readonly NutritionService _service   = new();
+    private readonly FoodItemService  _foodSvc   = new();
     private readonly RecipeService    _recipeSvc = new();
 
     // ── Профиль ──────────────────────────────────────────────────────
-    [ObservableProperty] private string _profileName   = string.Empty;
-    [ObservableProperty] private string _profileAge    = string.Empty;
-    [ObservableProperty] private string _profileWeight = string.Empty;
-    [ObservableProperty] private string _profileHeight = string.Empty;
-    [ObservableProperty] private string _profileGender = "Мужской";
+    [ObservableProperty] private string _profileName     = string.Empty;
+    [ObservableProperty] private string _profileAge      = string.Empty;
+    [ObservableProperty] private string _profileWeight   = string.Empty;
+    [ObservableProperty] private string _profileHeight   = string.Empty;
+    [ObservableProperty] private string _profileGender   = "Мужской";
     [ObservableProperty] private string _profileActivity = "Полуактивный";
 
     // Нормы
@@ -51,27 +51,27 @@ public partial class NutritionViewModel : ObservableObject
 
     // ── Форма добавления ─────────────────────────────────────────────
     [ObservableProperty] private bool   _showAddPanel;
-    [ObservableProperty] private string _newFoodName    = string.Empty;
-    [ObservableProperty] private string _newFoodAmount  = string.Empty;
-    [ObservableProperty] private string _newFoodUnit    = "г";
+    [ObservableProperty] private string _newFoodName     = string.Empty;
+    [ObservableProperty] private string _newFoodAmount   = string.Empty;
+    [ObservableProperty] private string _newFoodUnit     = "г";
     [ObservableProperty] private string _newFoodCalories = string.Empty;
     [ObservableProperty] private string _newFoodProtein  = string.Empty;
     [ObservableProperty] private string _newFoodFat      = string.Empty;
     [ObservableProperty] private string _newFoodCarbs    = string.Empty;
-    [ObservableProperty] private string _newMealType    = "Завтрак";
+    [ObservableProperty] private string _newMealType     = "Завтрак";
 
     // Поиск по базе ингредиентов
-    [ObservableProperty] private ObservableCollection<string>   _dbCategories     = new();
+    [ObservableProperty] private ObservableCollection<string>   _dbCategories      = new();
     [ObservableProperty] private string?                        _selectedDbCategory;
     [ObservableProperty] private ObservableCollection<FoodItem> _dbItemsInCategory = new();
     [ObservableProperty] private FoodItem?                      _selectedFoodItem;
 
     // Поиск по рецептам
-    [ObservableProperty] private ObservableCollection<Recipe>   _recipes          = new();
-    [ObservableProperty] private Recipe?                        _selectedRecipe;
+    [ObservableProperty] private ObservableCollection<Recipe> _recipes        = new();
+    [ObservableProperty] private Recipe?                      _selectedRecipe;
 
     // Режим добавления
-    [ObservableProperty] private string _addMode = "ingredient"; // "ingredient" | "recipe" | "manual"
+    [ObservableProperty] private string _addMode = "ingredient";
 
     public bool IsIngredientMode => AddMode == "ingredient";
     public bool IsRecipeMode     => AddMode == "recipe";
@@ -87,11 +87,13 @@ public partial class NutritionViewModel : ObservableObject
     public static IList<string> MealTypeOptions => new[] { "Завтрак", "Обед", "Ужин", "Перекус" };
     public static IList<string> UnitOptions     => new[] { "г", "мл", "шт", "ст.л.", "ч.л." };
 
-    // Instance wrappers for XAML {Binding} (avoids XC0009 type mismatch with {x:Static})
     public IList<string> Genders    => GenderOptions;
     public IList<string> Activities => ActivityOptions;
     public IList<string> MealTypes  => MealTypeOptions;
     public IList<string> Units      => UnitOptions;
+
+    // Raised when an error occurs in AddEntryAsync
+    public event Action<string>? OnAddError;
 
     public NutritionViewModel()
     {
@@ -113,9 +115,9 @@ public partial class NutritionViewModel : ObservableObject
     {
         var p = await _service.GetProfileAsync();
         ProfileName     = p.Name;
-        ProfileAge      = p.Age > 0     ? p.Age.ToString()    : string.Empty;
-        ProfileWeight   = p.Weight > 0  ? p.Weight.ToString() : string.Empty;
-        ProfileHeight   = p.Height > 0  ? p.Height.ToString() : string.Empty;
+        ProfileAge      = p.Age    > 0 ? p.Age.ToString()    : string.Empty;
+        ProfileWeight   = p.Weight > 0 ? p.Weight.ToString() : string.Empty;
+        ProfileHeight   = p.Height > 0 ? p.Height.ToString() : string.Empty;
         ProfileGender   = p.Gender;
         ProfileActivity = p.Activity;
         UpdateTargets(p);
@@ -180,8 +182,8 @@ public partial class NutritionViewModel : ObservableObject
 
     partial void OnSelectedDateChanged(DateTime value) => _ = LoadDiaryAsync();
 
-    [RelayCommand] public void PrevDay() { SelectedDate = SelectedDate.AddDays(-1); }
-    [RelayCommand] public void NextDay() { SelectedDate = SelectedDate.AddDays(1);  }
+    [RelayCommand] public void PrevDay() => SelectedDate = SelectedDate.AddDays(-1);
+    [RelayCommand] public void NextDay() => SelectedDate = SelectedDate.AddDays(1);
 
     [RelayCommand]
     public async Task DeleteEntryAsync(FoodDiaryEntry? e)
@@ -232,13 +234,24 @@ public partial class NutritionViewModel : ObservableObject
     partial void OnSelectedRecipeChanged(Recipe? value)
     {
         if (value == null) return;
-        NewFoodName     = value.Title;
-        NewFoodCalories = value.TotalCalories.ToString("0.#");
-        NewFoodProtein  = value.TotalProtein.ToString("0.#");
-        NewFoodFat      = value.TotalFat.ToString("0.#");
-        NewFoodCarbs    = value.TotalCarbs.ToString("0.#");
-        NewFoodUnit     = "порц.";
-        NewFoodAmount   = value.Servings > 0 ? "1" : string.Empty;
+        try
+        {
+            // TotalCalories etc. are null-safe computed props (see Recipe.cs)
+            NewFoodName     = value.Title;
+            NewFoodCalories = value.TotalCalories.ToString("0.#");
+            NewFoodProtein  = value.TotalProtein.ToString("0.#");
+            NewFoodFat      = value.TotalFat.ToString("0.#");
+            NewFoodCarbs    = value.TotalCarbs.ToString("0.#");
+            NewFoodUnit     = "порц.";
+            NewFoodAmount   = value.Servings > 0 ? "1" : string.Empty;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"OnSelectedRecipeChanged error: {ex}");
+            NewFoodName   = value.Title;
+            NewFoodUnit   = "порц.";
+            NewFoodAmount = "1";
+        }
     }
 
     [RelayCommand]
@@ -246,56 +259,63 @@ public partial class NutritionViewModel : ObservableObject
     {
         if (string.IsNullOrWhiteSpace(NewFoodName)) return;
 
-        double amount = Parse(NewFoodAmount);
-        double cal100 = Parse(NewFoodCalories);
-        double pro100 = Parse(NewFoodProtein);
-        double fat100 = Parse(NewFoodFat);
-        double carb100= Parse(NewFoodCarbs);
+        try
+        {
+            double amount  = Parse(NewFoodAmount);
+            double cal100  = Parse(NewFoodCalories);
+            double pro100  = Parse(NewFoodProtein);
+            double fat100  = Parse(NewFoodFat);
+            double carb100 = Parse(NewFoodCarbs);
 
-        // Если выбран ингредиент из базы — пересчитываем на количество
-        double cal, pro, fat, carb;
-        if (AddMode == "ingredient" && SelectedFoodItem != null && amount > 0)
-        {
-            cal  = cal100 * amount / 100;
-            pro  = pro100 * amount / 100;
-            fat  = fat100 * amount / 100;
-            carb = carb100 * amount / 100;
-        }
-        else if (AddMode == "recipe" && SelectedRecipe != null)
-        {
-            // Рецепт: умножаем на количество порций
-            double portions = amount > 0 ? amount : 1;
-            int servings = SelectedRecipe.Servings > 0 ? SelectedRecipe.Servings : 1;
-            cal  = cal100 / servings * portions;
-            pro  = pro100 / servings * portions;
-            fat  = fat100 / servings * portions;
-            carb = carb100/ servings * portions;
-        }
-        else
-        {
-            cal = cal100; pro = pro100; fat = fat100; carb = carb100;
-        }
+            double cal, pro, fat, carb;
 
-        var entry = new FoodDiaryEntry
-        {
-            Date     = SelectedDate,
-            FoodName = NewFoodName,
-            Amount   = amount,
-            Unit     = NewFoodUnit,
-            Calories = Math.Round(cal, 1),
-            Protein  = Math.Round(pro, 1),
-            Fat      = Math.Round(fat, 1),
-            Carbs    = Math.Round(carb, 1),
-            MealType = NewMealType,
-        };
+            if (AddMode == "ingredient" && SelectedFoodItem != null && amount > 0)
+            {
+                cal  = cal100 * amount / 100;
+                pro  = pro100 * amount / 100;
+                fat  = fat100 * amount / 100;
+                carb = carb100 * amount / 100;
+            }
+            else if (AddMode == "recipe" && SelectedRecipe != null)
+            {
+                double portions = amount > 0 ? amount : 1;
+                int    servings  = SelectedRecipe.Servings > 0 ? SelectedRecipe.Servings : 1;
+                cal  = cal100 / servings * portions;
+                pro  = pro100 / servings * portions;
+                fat  = fat100 / servings * portions;
+                carb = carb100 / servings * portions;
+            }
+            else
+            {
+                // Manual mode: values are already per-serving, use as-is
+                cal = cal100; pro = pro100; fat = fat100; carb = carb100;
+            }
 
-        await _service.AddEntryAsync(entry);
-        Entries.Add(entry);
-        RecalcTotals();
-        // Уведомляем View о смене коллекции чтобы обновить группировку
-        OnPropertyChanged(nameof(Entries));
-        ResetForm();
-        ShowAddPanel = false;
+            var entry = new FoodDiaryEntry
+            {
+                Date     = SelectedDate,
+                FoodName = NewFoodName,
+                Amount   = amount,
+                Unit     = NewFoodUnit,
+                Calories = Math.Round(cal,  1),
+                Protein  = Math.Round(pro,  1),
+                Fat      = Math.Round(fat,  1),
+                Carbs    = Math.Round(carb, 1),
+                MealType = NewMealType,
+            };
+
+            await _service.AddEntryAsync(entry);
+            Entries.Add(entry);
+            RecalcTotals();
+            OnPropertyChanged(nameof(Entries));
+            ResetForm();
+            ShowAddPanel = false;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"AddEntryAsync error: {ex}");
+            OnAddError?.Invoke($"Не удалось добавить запись: {ex.Message}");
+        }
     }
 
     partial void OnAddModeChanged(string value)
@@ -305,26 +325,27 @@ public partial class NutritionViewModel : ObservableObject
         OnPropertyChanged(nameof(IsManualMode));
     }
 
-    partial void OnEntriesChanged(System.Collections.ObjectModel.ObservableCollection<FoodDiaryEntry> value)
+    partial void OnEntriesChanged(ObservableCollection<FoodDiaryEntry> value)
     {
         OnPropertyChanged(nameof(MealGroups));
     }
 
     private void ResetForm()
     {
-        NewFoodName = NewFoodAmount = NewFoodCalories =
-        NewFoodProtein = NewFoodFat = NewFoodCarbs = string.Empty;
-        NewFoodUnit     = "г";
-        NewMealType     = "Завтрак";
+        NewFoodName     = NewFoodAmount   = NewFoodCalories =
+        NewFoodProtein  = NewFoodFat      = NewFoodCarbs = string.Empty;
+        NewFoodUnit        = "г";
+        NewMealType        = "Завтрак";
         SelectedFoodItem   = null;
         SelectedRecipe     = null;
         SelectedDbCategory = null;
-        AddMode = "ingredient";
+        AddMode            = "ingredient";
     }
 
-    private static double Parse(string s)
+    private static double Parse(string? s)
     {
-        double.TryParse(s?.Replace(',', '.'),
+        if (string.IsNullOrWhiteSpace(s)) return 0;
+        double.TryParse(s.Replace(',', '.'),
             System.Globalization.NumberStyles.Any,
             System.Globalization.CultureInfo.InvariantCulture, out double v);
         return v;

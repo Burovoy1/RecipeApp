@@ -55,12 +55,12 @@
                             <VerticalStackLayout Grid.Column="0" Spacing="4">
                                 <Label Text="Пол" Style="{StaticResource CaptionLabel}"/>
                                 <Picker SelectedItem="{Binding ProfileGender}"
-                                        ItemsSource="{x:Static vm:NutritionViewModel.GenderOptions}"/>
+                                        ItemsSource="{Binding Genders}"/>
                             </VerticalStackLayout>
                             <VerticalStackLayout Grid.Column="1" Spacing="4">
                                 <Label Text="Активность" Style="{StaticResource CaptionLabel}"/>
                                 <Picker SelectedItem="{Binding ProfileActivity}"
-                                        ItemsSource="{x:Static vm:NutritionViewModel.ActivityOptions}"/>
+                                        ItemsSource="{Binding Activities}"/>
                             </VerticalStackLayout>
                         </Grid>
                         <Button Text="Сохранить профиль"
@@ -191,7 +191,7 @@
                     <!-- Meal type -->
                     <Picker Title="Приём пищи"
                             SelectedItem="{Binding NewMealType}"
-                            ItemsSource="{x:Static vm:NutritionViewModel.MealTypeOptions}"/>
+                            ItemsSource="{Binding MealTypes}"/>
 
                     <!-- Mode selector -->
                     <HorizontalStackLayout Spacing="8">
@@ -223,7 +223,7 @@
                                    Text="{Binding NewFoodAmount}" Keyboard="Numeric"/>
                             <Picker Grid.Column="1"
                                     SelectedItem="{Binding NewFoodUnit}"
-                                    ItemsSource="{x:Static vm:NutritionViewModel.UnitOptions}"/>
+                                    ItemsSource="{Binding Units}"/>
                         </Grid>
                     </VerticalStackLayout>
 

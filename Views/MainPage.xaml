@@ -124,14 +124,19 @@
                                                HeightRequest="56"
                                                HasShadow="False"
                                                BorderColor="{StaticResource Border}">
-                                            <Image Source="{Binding ImagePath, Converter={StaticResource ImgPath}}"
-                                                   Aspect="AspectFill"
-                                                   IsVisible="{Binding ImagePath, Converter={StaticResource NullBool}}"/>
-                                            <Label Text="🍽️"
-                                                   FontSize="28"
-                                                   HorizontalOptions="Center"
-                                                   VerticalOptions="Center"
-                                                   IsVisible="{Binding ImagePath, Converter={StaticResource NullBool}, ConverterParameter=Inverse}"/>
+                                            <!-- Grid overlay: Image on top of placeholder emoji -->
+                                            <Grid>
+                                                <!-- Placeholder shown when no image -->
+                                                <Label Text="🍽️"
+                                                       FontSize="28"
+                                                       HorizontalOptions="Center"
+                                                       VerticalOptions="Center"
+                                                       IsVisible="{Binding ImagePath, Converter={StaticResource NullBool}, ConverterParameter=Inverse}"/>
+                                                <!-- Photo shown when image exists -->
+                                                <Image Source="{Binding ImagePath, Converter={StaticResource ImgPath}}"
+                                                       Aspect="AspectFill"
+                                                       IsVisible="{Binding ImagePath, Converter={StaticResource NullBool}}"/>
+                                            </Grid>
                                         </Frame>
                                         <!-- Info -->
                                         <VerticalStackLayout Grid.Column="1"

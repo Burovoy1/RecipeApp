@@ -9,6 +9,9 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
+        // Required for EF Core SQLite on Android — prevents native library crash
+        SQLitePCL.Batteries_V2.Init();
+
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()

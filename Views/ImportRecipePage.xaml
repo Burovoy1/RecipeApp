@@ -6,12 +6,13 @@
     xmlns:vm="clr-namespace:RecipeApp.ViewModels"
     xmlns:models="clr-namespace:RecipeApp.Services"
     xmlns:conv="clr-namespace:RecipeApp.Converters"
-    Title="Импорт рецепта">
+    Title="Импорт рецепта"
+    Shell.NavBarIsVisible="True">
 
     <ContentPage.Resources>
-        <conv:NullToBoolConverter    x:Key="NullBool"/>
-        <conv:InverseBoolConverter   x:Key="InvBool"/>
-        <conv:ImagePathConverter     x:Key="ImgPath"/>
+        <conv:NullToBoolConverter     x:Key="NullBool"/>
+        <conv:InverseBoolConverter    x:Key="InvBool"/>
+        <conv:ImagePathConverter      x:Key="ImgPath"/>
         <conv:PositiveToBoolConverter x:Key="PosBool"/>
     </ContentPage.Resources>
 
@@ -74,22 +75,16 @@
                 <!-- Preview card -->
                 <Frame Style="{StaticResource Card}">
                     <VerticalStackLayout Spacing="8">
-                        <!-- Image -->
                         <Image Source="{Binding ImagePath, Converter={StaticResource ImgPath}}"
-                               Aspect="AspectFill"
-                               HeightRequest="180"
+                               Aspect="AspectFill" HeightRequest="180"
                                IsVisible="{Binding ImagePath, Converter={StaticResource NullBool}}"/>
 
-                        <!-- Title (editable) -->
                         <Label Text="Название" Style="{StaticResource CaptionLabel}"/>
                         <Entry Text="{Binding Title}"/>
 
-                        <!-- Description (editable) -->
                         <Label Text="Описание" Style="{StaticResource CaptionLabel}"/>
-                        <Editor Text="{Binding Description}"
-                                HeightRequest="70" AutoSize="TextChanges"/>
+                        <Editor Text="{Binding Description}" HeightRequest="70"/>
 
-                        <!-- Meta -->
                         <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
                             <VerticalStackLayout Grid.Column="0" Spacing="4">
                                 <Label Text="Подготовка (мин)" Style="{StaticResource CaptionLabel}"/>
@@ -105,7 +100,6 @@
                             </VerticalStackLayout>
                         </Grid>
 
-                        <!-- Nutrition (if available) -->
                         <Frame BackgroundColor="{StaticResource PrimaryLight}"
                                BorderColor="Transparent" CornerRadius="8" Padding="10,8" HasShadow="False"
                                IsVisible="{Binding HasNutrition}">
@@ -150,20 +144,15 @@
                         <DataTemplate>
                             <Frame Style="{StaticResource Card}" Padding="10,8">
                                 <Grid ColumnDefinitions="*,Auto,Auto,Auto">
-                                    <Label Grid.Column="0"
-                                           Text="{Binding Name}"
-                                           Style="{StaticResource BodyLabel}"
-                                           VerticalOptions="Center"/>
-                                    <Label Grid.Column="1"
-                                           Text="{Binding Amount}"
+                                    <Label Grid.Column="0" Text="{Binding Name}"
+                                           Style="{StaticResource BodyLabel}" VerticalOptions="Center"/>
+                                    <Label Grid.Column="1" Text="{Binding Amount}"
                                            TextColor="{StaticResource TextSecondary}"
                                            FontSize="13" VerticalOptions="Center" Margin="4,0"/>
-                                    <Label Grid.Column="2"
-                                           Text="{Binding Unit}"
+                                    <Label Grid.Column="2" Text="{Binding Unit}"
                                            TextColor="{StaticResource TextSecondary}"
                                            FontSize="13" VerticalOptions="Center"/>
-                                    <Button Grid.Column="3"
-                                            Text="✕"
+                                    <Button Grid.Column="3" Text="✕"
                                             Style="{StaticResource IconButton}"
                                             TextColor="{StaticResource Danger}"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveIngredientCommand}"
@@ -180,18 +169,16 @@
                     <BindableLayout.ItemTemplate>
                         <DataTemplate x:DataType="x:String">
                             <Grid ColumnDefinitions="36,*,Auto" ColumnSpacing="10">
-                                <Frame Grid.Column="0"
-                                       BackgroundColor="{StaticResource Primary}"
+                                <Frame Grid.Column="0" BackgroundColor="{StaticResource Primary}"
                                        BorderColor="Transparent" CornerRadius="18"
                                        WidthRequest="36" HeightRequest="36"
                                        Padding="0" HasShadow="False" HorizontalOptions="Center">
-                                    <Label Text="{Binding Source={RelativeSource Self}, Path=Parent.Parent.Parent.BindingContext}"
-                                           TextColor="White" FontAttributes="Bold" FontSize="14"
-                                           HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    <Label TextColor="White" FontAttributes="Bold" FontSize="14"
+                                           HorizontalOptions="Center" VerticalOptions="Center"
+                                           Text="{Binding Source={RelativeSource Self}, Path=Parent.Parent.Parent.BindingContext}"/>
                                 </Frame>
                                 <Label Grid.Column="1" Text="{Binding .}"
-                                       Style="{StaticResource BodyLabel}"
-                                       VerticalOptions="Center"/>
+                                       Style="{StaticResource BodyLabel}" VerticalOptions="Center"/>
                                 <Button Grid.Column="2" Text="✕"
                                         Style="{StaticResource IconButton}"
                                         TextColor="{StaticResource Danger}"
@@ -201,6 +188,14 @@
                         </DataTemplate>
                     </BindableLayout.ItemTemplate>
                 </VerticalStackLayout>
+
+                <!-- Inline save button -->
+                <Button Text="💾 Сохранить рецепт"
+                        Style="{StaticResource PrimaryButton}"
+                        Clicked="OnSaveClicked"
+                        HorizontalOptions="Fill"
+                        Margin="0,8,0,0"/>
+
             </VerticalStackLayout>
 
             <BoxView HeightRequest="40" Opacity="0"/>

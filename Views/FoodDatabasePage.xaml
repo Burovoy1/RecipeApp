@@ -6,25 +6,30 @@
     xmlns:vm="clr-namespace:RecipeApp.ViewModels"
     xmlns:models="clr-namespace:RecipeApp.Models"
     xmlns:conv="clr-namespace:RecipeApp.Converters"
-    Title="База продуктов"
-    Shell.NavBarIsVisible="True">
+    Title="База продуктов">
 
     <ContentPage.Resources>
         <conv:InverseBoolConverter x:Key="InvBool"/>
         <conv:NullToBoolConverter  x:Key="NullBool"/>
     </ContentPage.Resources>
 
-    <ContentPage.ToolbarItems>
-        <ToolbarItem Text="+ Добавить" Command="{Binding StartAddCommand}"/>
-    </ContentPage.ToolbarItems>
+    <Grid RowDefinitions="Auto,Auto,Auto,*">
 
-    <Grid RowDefinitions="Auto,Auto,*">
-
-        <!-- Search -->
-        <SearchBar Grid.Row="0"
-                   Placeholder="Поиск продуктов..."
-                   Text="{Binding SearchText}"
-                   Margin="8,8,8,0"/>
+        <!-- Search + Add button row -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="8,8,8,0" ColumnSpacing="8">
+            <SearchBar Grid.Column="0"
+                       Placeholder="Поиск продуктов..."
+                       Text="{Binding SearchText}"/>
+            <Button Grid.Column="1"
+                    Text="+ Добавить"
+                    Command="{Binding StartAddCommand}"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="White"
+                    CornerRadius="8"
+                    FontSize="13"
+                    Padding="12,0"
+                    HeightRequest="44"/>
+        </Grid>
 
         <!-- Category filter -->
         <Picker Grid.Row="1"
@@ -32,11 +37,31 @@
                 SelectedItem="{Binding SelectedCategory}"
                 Margin="8,4"/>
 
+        <!-- Loading indicator -->
+        <ActivityIndicator Grid.Row="2"
+                           IsRunning="{Binding IsLoading}"
+                           IsVisible="{Binding IsLoading}"
+                           HorizontalOptions="Center"
+                           Margin="0,4"/>
+
         <!-- Product list -->
-        <RefreshView Grid.Row="2"
+        <RefreshView Grid.Row="3"
                      Command="{Binding LoadCommand}"
                      IsRefreshing="{Binding IsLoading, Mode=OneWay}">
             <CollectionView ItemsSource="{Binding Items}">
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center"
+                                         Spacing="8" Padding="32">
+                        <Label Text="🥗" FontSize="48" HorizontalOptions="Center"/>
+                        <Label Text="База продуктов пуста"
+                               FontSize="16" FontAttributes="Bold"
+                               TextColor="{StaticResource TextPrimary}"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Нажмите «+ Добавить» чтобы добавить продукт"
+                               FontSize="13" TextColor="{StaticResource TextSecondary}"
+                               HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:FoodItem">
                         <SwipeView>
@@ -67,8 +92,6 @@
                                                FontSize="12" TextColor="{StaticResource CarbsText}"/>
                                     </HorizontalStackLayout>
                                 </VerticalStackLayout>
-                                <!-- Edit button triggers StartEditCommand in VM,
-                                     which fires OnEditRequested → code-behind opens modal -->
                                 <Button Grid.Column="1"
                                         Text="✎"
                                         Style="{StaticResource IconButton}"

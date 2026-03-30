@@ -5,7 +5,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:models="clr-namespace:RecipeApp.Models"
     xmlns:conv="clr-namespace:RecipeApp.Converters"
-    Title="{Binding Title}">
+    Title="{Binding Title}"
+    Shell.NavBarIsVisible="True">
 
     <ContentPage.Resources>
         <conv:NullToBoolConverter    x:Key="NullBool"/>
@@ -35,7 +36,7 @@
                        FontAttributes="Bold"
                        TextColor="{StaticResource TextPrimary}"/>
 
-                <!-- Meta chips (Gap not supported — use Margin on children) -->
+                <!-- Meta chips -->
                 <FlexLayout Wrap="Wrap" Direction="Row">
                     <Frame Style="{StaticResource Chip}" Margin="0,0,8,8">
                         <Label Text="{Binding Category}" FontSize="13"
@@ -66,8 +67,7 @@
 
                 <!-- КБЖУ -->
                 <Frame Style="{StaticResource Card}" Padding="12">
-                    <Grid ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,Auto">
-                        <!-- Калории -->
+                    <Grid ColumnDefinitions="*,*,*,*">
                         <Frame Grid.Column="0" BackgroundColor="{StaticResource CaloriesBg}"
                                BorderColor="Transparent" CornerRadius="8" Padding="8,6" HasShadow="False">
                             <VerticalStackLayout Spacing="2">
@@ -80,7 +80,6 @@
                                        HorizontalOptions="Center"/>
                             </VerticalStackLayout>
                         </Frame>
-                        <!-- Белки -->
                         <Frame Grid.Column="1" BackgroundColor="{StaticResource ProteinBg}"
                                BorderColor="Transparent" CornerRadius="8" Padding="8,6" HasShadow="False">
                             <VerticalStackLayout Spacing="2">
@@ -93,7 +92,6 @@
                                        HorizontalOptions="Center"/>
                             </VerticalStackLayout>
                         </Frame>
-                        <!-- Жиры -->
                         <Frame Grid.Column="2" BackgroundColor="{StaticResource FatBg}"
                                BorderColor="Transparent" CornerRadius="8" Padding="8,6" HasShadow="False">
                             <VerticalStackLayout Spacing="2">
@@ -106,7 +104,6 @@
                                        HorizontalOptions="Center"/>
                             </VerticalStackLayout>
                         </Frame>
-                        <!-- Углеводы -->
                         <Frame Grid.Column="3" BackgroundColor="{StaticResource CarbsBg}"
                                BorderColor="Transparent" CornerRadius="8" Padding="8,6" HasShadow="False">
                             <VerticalStackLayout Spacing="2">

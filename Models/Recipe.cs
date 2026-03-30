@@ -17,11 +17,11 @@ public class Recipe
 
     public int TotalTimeMinutes => PrepTimeMinutes + CookTimeMinutes;
 
-    // Суммарное КБЖУ — сумма пересчитанных значений каждого ингредиента
-    public double TotalCalories => Ingredients.Sum(i => i.TotalCalories);
-    public double TotalProtein  => Ingredients.Sum(i => i.TotalProtein);
-    public double TotalFat      => Ingredients.Sum(i => i.TotalFat);
-    public double TotalCarbs    => Ingredients.Sum(i => i.TotalCarbs);
+    // Null-safe: EF Core may set Ingredients to null if Include failed or table is empty
+    public double TotalCalories => Ingredients?.Sum(i => i.TotalCalories) ?? 0;
+    public double TotalProtein  => Ingredients?.Sum(i => i.TotalProtein)  ?? 0;
+    public double TotalFat      => Ingredients?.Sum(i => i.TotalFat)      ?? 0;
+    public double TotalCarbs    => Ingredients?.Sum(i => i.TotalCarbs)    ?? 0;
 }
 
 public class Ingredient

@@ -7,19 +7,19 @@
     Shell.NavBarIsVisible="False">
 
     <TabBar>
-        <Tab Title="Рецепты" Icon="icon_recipes.png">
+        <Tab Title="Рецепты" Icon="icon_recipes.svg">
             <ShellContent
                 Route="recipes"
                 ContentTemplate="{DataTemplate views:MainPage}" />
         </Tab>
 
-        <Tab Title="Продукты" Icon="icon_db.png">
+        <Tab Title="Продукты" Icon="icon_db.svg">
             <ShellContent
                 Route="fooddb"
                 ContentTemplate="{DataTemplate views:FoodDatabasePage}" />
         </Tab>
 
-        <Tab Title="Питание" Icon="icon_nutrition.png">
+        <Tab Title="Питание" Icon="icon_nutrition.svg">
             <ShellContent
                 Route="nutrition"
                 ContentTemplate="{DataTemplate views:NutritionPage}" />

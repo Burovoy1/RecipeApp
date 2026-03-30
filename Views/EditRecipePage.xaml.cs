@@ -33,6 +33,11 @@ public partial class EditRecipePage : ContentPage
         {
             await DisplayAlert("Сохранено", $"«{name}» добавлен в базу продуктов", "OK");
         };
+
+        _vm.OnPickImageError += async msg =>
+        {
+            await DisplayAlert("Ошибка фото", msg, "OK");
+        };
     }
 
     private async void OnSaveClicked(object sender, EventArgs e)

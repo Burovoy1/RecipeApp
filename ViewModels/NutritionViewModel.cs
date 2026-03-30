@@ -87,6 +87,12 @@ public partial class NutritionViewModel : ObservableObject
     public static IList<string> MealTypeOptions => new[] { "Завтрак", "Обед", "Ужин", "Перекус" };
     public static IList<string> UnitOptions     => new[] { "г", "мл", "шт", "ст.л.", "ч.л." };
 
+    // Instance wrappers for XAML {Binding} (avoids XC0009 type mismatch with {x:Static})
+    public IList<string> Genders    => GenderOptions;
+    public IList<string> Activities => ActivityOptions;
+    public IList<string> MealTypes  => MealTypeOptions;
+    public IList<string> Units      => UnitOptions;
+
     public NutritionViewModel()
     {
         _ = InitAsync();

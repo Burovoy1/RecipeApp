@@ -18,6 +18,8 @@ jobs:
         uses: actions/checkout@v4
 
       # ── 2. .NET 9 ────────────────────────────────────────────────────
+      # global.json in repo root pins the SDK to net9.0 so .NET 10
+      # pre-installed on the runner is ignored.
       - name: Setup .NET 9
         uses: actions/setup-dotnet@v4
         with:
@@ -25,7 +27,7 @@ jobs:
 
       # ── 3. MAUI Android workload ──────────────────────────────────────
       - name: Install MAUI Android workload
-        run: dotnet workload install maui-android --sdk-version 9.0.100
+        run: dotnet workload install maui-android
 
       # ── 4. Restore (Android only) ────────────────────────────────────
       - name: Restore NuGet packages

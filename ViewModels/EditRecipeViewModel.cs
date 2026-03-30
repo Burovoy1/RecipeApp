@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using RecipeApp.Models;
@@ -48,10 +48,16 @@ public partial class EditRecipeViewModel : ObservableObject
     [ObservableProperty] private double _totalFat;
     [ObservableProperty] private double _totalCarbs;
 
+    // Static source lists
     public static IEnumerable<string> Difficulties    => new[] { "Лёгкая", "Средняя", "Сложная" };
     public static IEnumerable<string> CategoryOptions => new[]
         { "Завтрак", "Обед", "Ужин", "Десерт", "Закуска", "Суп", "Салат", "Выпечка", "Напиток", "Другое" };
     public static IEnumerable<string> UnitOptions => new[] { "г", "мл", "шт", "ст.л.", "ч.л." };
+
+    // Instance wrappers — required for {Binding} to work (static props don't bind)
+    public IEnumerable<string> DifficultyList  => Difficulties;
+    public IEnumerable<string> CategoryList    => CategoryOptions;
+    public IEnumerable<string> UnitList        => UnitOptions;
 
     public bool IsSaved { get; private set; }
     public event Action<string>? OnIngredientSavedToDb;
@@ -61,14 +67,12 @@ public partial class EditRecipeViewModel : ObservableObject
         _ = LoadDbCategoriesAsync();
     }
 
-    // Загрузить категории из базы
     private async Task LoadDbCategoriesAsync()
     {
         var cats = await _foodService.GetCategoriesAsync();
         DbCategories = new ObservableCollection<string>(cats);
     }
 
-    // При смене категории — загружаем ингредиенты из неё
     async partial void OnSelectedDbCategoryChanged(string? value)
     {
         SelectedFoodItem = null;
@@ -81,7 +85,6 @@ public partial class EditRecipeViewModel : ObservableObject
         DbItemsInCategory = new ObservableCollection<FoodItem>(items);
     }
 
-    // При выборе ингредиента — заполняем поля
     partial void OnSelectedFoodItemChanged(FoodItem? value)
     {
         if (value == null) return;
@@ -95,7 +98,6 @@ public partial class EditRecipeViewModel : ObservableObject
         ShowSaveToDb          = false;
     }
 
-    // Ручной ввод — предлагаем сохранить в базу
     partial void OnNewIngredientNameChanged(string value)
     {
         if (SelectedFoodItem != null && SelectedFoodItem.Name == value) return;
@@ -168,7 +170,6 @@ public partial class EditRecipeViewModel : ObservableObject
             CarbsPer100    = Parse(NewIngredientCarbs),
         });
 
-        // Сброс
         SelectedFoodItem   = null;
         SelectedDbCategory = null;
         NewIngredientName  = NewIngredientAmount =
@@ -179,6 +180,7 @@ public partial class EditRecipeViewModel : ObservableObject
         DbItemsInCategory.Clear();
 
         RecalcNutrition();
+        OnPropertyChanged(nameof(Ingredients));
     }
 
     [RelayCommand]
@@ -187,6 +189,7 @@ public partial class EditRecipeViewModel : ObservableObject
         if (ingredient == null) return;
         Ingredients.Remove(ingredient);
         RecalcNutrition();
+        OnPropertyChanged(nameof(Ingredients));
     }
 
     [RelayCommand]
@@ -210,14 +213,13 @@ public partial class EditRecipeViewModel : ObservableObject
     {
         try
         {
-            var result = await MediaPicker.PickPhotoAsync(new MediaPickerOptions
+            var result = await MediaPicker.Default.PickPhotoAsync(new MediaPickerOptions
             {
                 Title = "Выберите изображение рецепта"
             });
             if (result != null)
             {
-                // Copy to app data directory so the path persists
-                var destDir = FileSystem.AppDataDirectory;
+                var destDir  = FileSystem.AppDataDirectory;
                 var destPath = Path.Combine(destDir, result.FileName);
                 using var src = await result.OpenReadAsync();
                 using var dst = File.OpenWrite(destPath);
@@ -225,11 +227,17 @@ public partial class EditRecipeViewModel : ObservableObject
                 ImagePath = destPath;
             }
         }
+        catch (PermissionException)
+        {
+            OnPickImageError?.Invoke("Нет разрешения на доступ к фото. Разрешите доступ в настройках приложения.");
+        }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"PickImage error: {ex.Message}");
+            OnPickImageError?.Invoke($"Не удалось открыть фото: {ex.Message}");
         }
     }
+
+    public event Action<string>? OnPickImageError;
 
     [RelayCommand]
     public async Task SaveAsync()
@@ -269,4 +277,3 @@ public partial class EditRecipeViewModel : ObservableObject
         return v;
     }
 }
-

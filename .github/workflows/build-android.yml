@@ -36,13 +36,14 @@ jobs:
             -p:TargetFrameworks=net9.0-android
 
       # ── 5a. Release build — every push/PR ────────────────────────────
-      # Use dotnet publish (not build) so all assemblies are embedded in
-      # the APK. Debug builds use Fast Deployment (assemblies outside APK)
-      # which crashes on manual install.
+      # -f selects the framework for publish; -p:TargetFrameworks removes
+      # iOS/macOS from the project's target list so MSBuild doesn't try
+      # to resolve unavailable workloads.
       - name: Build Release APK (unsigned)
         if: github.event_name != 'release'
         run: |
           dotnet publish RecipeApp.csproj \
+            -f net9.0-android \
             -p:TargetFrameworks=net9.0-android \
             -c Release \
             -p:AndroidPackageFormat=apk \
@@ -60,6 +61,7 @@ jobs:
           echo "$KEYSTORE_BASE64" | base64 --decode > recipeapp.keystore
 
           dotnet publish RecipeApp.csproj \
+            -f net9.0-android \
             -p:TargetFrameworks=net9.0-android \
             -c Release \
             -p:AndroidPackageFormat=apk \

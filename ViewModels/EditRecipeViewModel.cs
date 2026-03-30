@@ -214,14 +214,10 @@ public partial class EditRecipeViewModel : ObservableObject
     {
         try
         {
-            // Explicit permission request for Android < 13
-            var status = await Permissions.RequestAsync<Permissions.Photos>();
-            if (status != PermissionStatus.Granted)
-            {
-                OnPickImageError?.Invoke("Нет разрешения на доступ к фото. Разрешите доступ в настройках приложения.");
-                return;
-            }
-
+            // MediaPicker handles permissions internally on all Android versions.
+            // Do NOT call Permissions.RequestAsync<Permissions.Photos>() manually —
+            // on Android 13+ it can silently return Denied without showing a dialog,
+            // blocking the picker before it even opens.
             var result = await MediaPicker.Default.PickPhotoAsync(new MediaPickerOptions
             {
                 Title = "Выберите изображение рецепта"
@@ -230,13 +226,11 @@ public partial class EditRecipeViewModel : ObservableObject
             if (result != null)
             {
                 var destDir  = FileSystem.AppDataDirectory;
-                // Use unique name to avoid overwriting previous photos
                 var ext      = Path.GetExtension(result.FileName);
                 var fileName = $"recipe_{DateTime.Now:yyyyMMdd_HHmmss}{ext}";
                 var destPath = Path.Combine(destDir, fileName);
 
                 using var src = await result.OpenReadAsync();
-                // File.Create truncates existing file properly (unlike File.OpenWrite)
                 using var dst = File.Create(destPath);
                 await src.CopyToAsync(dst);
 

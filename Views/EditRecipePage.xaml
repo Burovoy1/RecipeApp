@@ -72,9 +72,10 @@
                     <Image Source="{Binding ImagePath, Converter={StaticResource ImgPath}}"
                            Aspect="AspectFill" HeightRequest="180"
                            IsVisible="{Binding ImagePath, Converter={StaticResource NullBool}}"/>
+                    <!-- PickImageAsync → generated command name is PickImageCommand (Async stripped) -->
                     <Button Text="Выбрать фото"
                             Style="{StaticResource GhostButton}"
-                            Command="{Binding PickImageAsyncCommand}"
+                            Command="{Binding PickImageCommand}"
                             HorizontalOptions="Fill"/>
                 </VerticalStackLayout>
             </Frame>
@@ -138,9 +139,10 @@
                     </Grid>
 
                     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                        <!-- SaveIngredientToDbAsync → SaveIngredientToDbCommand -->
                         <Button Grid.Column="0" Text="Сохранить в базу"
                                 Style="{StaticResource GhostButton}"
-                                Command="{Binding SaveIngredientToDbAsyncCommand}"
+                                Command="{Binding SaveIngredientToDbCommand}"
                                 IsVisible="{Binding ShowSaveToDb}" FontSize="12"/>
                         <Button Grid.Column="1" Text="+ Добавить"
                                 Style="{StaticResource PrimaryButton}"

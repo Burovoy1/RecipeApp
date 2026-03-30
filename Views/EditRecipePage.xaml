@@ -12,6 +12,7 @@
         <conv:NullToBoolConverter    x:Key="NullBool"/>
         <conv:InverseBoolConverter   x:Key="InvBool"/>
         <conv:ImagePathConverter     x:Key="ImgPath"/>
+        <conv:CountToBoolConverter   x:Key="CountBool"/>
     </ContentPage.Resources>
 
     <ContentPage.ToolbarItems>
@@ -38,12 +39,12 @@
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
                         <VerticalStackLayout Grid.Column="0" Spacing="4">
                             <Label Text="Категория" Style="{StaticResource CaptionLabel}"/>
-                            <Picker ItemsSource="{Binding CategoryOptions}"
+                            <Picker ItemsSource="{Binding CategoryList}"
                                     SelectedItem="{Binding Category}"/>
                         </VerticalStackLayout>
                         <VerticalStackLayout Grid.Column="1" Spacing="4">
                             <Label Text="Сложность" Style="{StaticResource CaptionLabel}"/>
-                            <Picker ItemsSource="{Binding Difficulties}"
+                            <Picker ItemsSource="{Binding DifficultyList}"
                                     SelectedItem="{Binding Difficulty}"/>
                         </VerticalStackLayout>
                     </Grid>
@@ -136,7 +137,7 @@
                                Text="{Binding NewIngredientAmount}"
                                Keyboard="Numeric"/>
                         <Picker Grid.Column="2"
-                                ItemsSource="{Binding UnitOptions}"
+                                ItemsSource="{Binding UnitList}"
                                 SelectedItem="{Binding NewIngredientUnit}"/>
                     </Grid>
 
@@ -169,7 +170,7 @@
             <!-- Ingredients list -->
             <VerticalStackLayout BindableLayout.ItemsSource="{Binding Ingredients}"
                                  Spacing="4"
-                                 IsVisible="{Binding Ingredients.Count, Converter={x:Static conv:CountToBoolConverter.Instance}}">
+                                 IsVisible="{Binding Ingredients.Count, Converter={StaticResource CountBool}}">
                 <BindableLayout.ItemTemplate>
                     <DataTemplate x:DataType="models:Ingredient">
                         <Frame Style="{StaticResource Card}" Padding="10,8">
@@ -204,7 +205,7 @@
 
             <!-- КБЖУ итого -->
             <Frame Style="{StaticResource Card}" BackgroundColor="{StaticResource PrimaryLight}"
-                   IsVisible="{Binding Ingredients.Count, Converter={x:Static conv:CountToBoolConverter.Instance}}">
+                   IsVisible="{Binding Ingredients.Count, Converter={StaticResource CountBool}}">
                 <Grid ColumnDefinitions="*,*,*,*">
                     <VerticalStackLayout Grid.Column="0" Spacing="2" HorizontalOptions="Center">
                         <Label Text="{Binding TotalCalories, StringFormat='{0:0}'}"
@@ -277,7 +278,6 @@
                 </BindableLayout.ItemTemplate>
             </VerticalStackLayout>
 
-            <!-- Bottom spacing -->
             <BoxView HeightRequest="40" Opacity="0"/>
         </VerticalStackLayout>
     </ScrollView>

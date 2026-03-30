@@ -6,18 +6,18 @@ namespace RecipeApp.Services;
 
 public class NutritionService
 {
-    private readonly RecipeDbContext _db;
-
     public NutritionService()
     {
-        _db = new RecipeDbContext();
-        _db.EnsureSchema();
+        // Ensure schema exists once on construction
+        using var db = new RecipeDbContext();
+        db.EnsureSchema();
     }
 
     // ── Профиль пользователя ─────────────────────────────────────────
     public async Task<UserProfile> GetProfileAsync()
     {
-        var p = await _db.UserProfiles.FirstOrDefaultAsync();
+        using var db = new RecipeDbContext();
+        var p = await db.UserProfiles.FirstOrDefaultAsync();
         return p ?? new UserProfile();
     }
 
@@ -25,11 +25,12 @@ public class NutritionService
     {
         try
         {
-            var existing = await _db.UserProfiles.FirstOrDefaultAsync();
+            using var db = new RecipeDbContext();
+            var existing = await db.UserProfiles.FirstOrDefaultAsync();
 
             if (existing == null)
             {
-                var newProfile = new UserProfile
+                db.UserProfiles.Add(new UserProfile
                 {
                     Name     = profile.Name,
                     Age      = profile.Age,
@@ -37,8 +38,7 @@ public class NutritionService
                     Height   = profile.Height,
                     Gender   = profile.Gender,
                     Activity = profile.Activity,
-                };
-                _db.UserProfiles.Add(newProfile);
+                });
             }
             else
             {
@@ -48,10 +48,9 @@ public class NutritionService
                 existing.Height   = profile.Height;
                 existing.Gender   = profile.Gender;
                 existing.Activity = profile.Activity;
-                _db.UserProfiles.Update(existing);
             }
 
-            await _db.SaveChangesAsync();
+            await db.SaveChangesAsync();
         }
         catch (Exception ex)
         {
@@ -62,26 +61,37 @@ public class NutritionService
     // ── Дневник питания ──────────────────────────────────────────────
     public async Task<List<FoodDiaryEntry>> GetEntriesForDateAsync(DateTime date)
     {
-        return await _db.FoodDiaryEntries
+        using var db = new RecipeDbContext();
+        // Загружаем все записи в память и фильтруем там — SQLite DateTime может
+        // хранить дату как строку, и LINQ-to-SQL не всегда корректно переводит .Date
+        var all = await db.FoodDiaryEntries.ToListAsync();
+        return all
             .Where(e => e.Date.Date == date.Date)
-            .OrderBy(e => e.MealType)
-            .ToListAsync();
+            .OrderBy(e => e.MealType switch {
+                "Завтрак" => 0,
+                "Обед"    => 1,
+                "Ужин"    => 2,
+                _         => 3
+            })
+            .ToList();
     }
 
     public async Task AddEntryAsync(FoodDiaryEntry entry)
     {
+        using var db = new RecipeDbContext();
         entry.Date = entry.Date.Date;
-        _db.FoodDiaryEntries.Add(entry);
-        await _db.SaveChangesAsync();
+        db.FoodDiaryEntries.Add(entry);
+        await db.SaveChangesAsync();
     }
 
     public async Task DeleteEntryAsync(int id)
     {
-        var e = await _db.FoodDiaryEntries.FindAsync(id);
+        using var db = new RecipeDbContext();
+        var e = await db.FoodDiaryEntries.FindAsync(id);
         if (e != null)
         {
-            _db.FoodDiaryEntries.Remove(e);
-            await _db.SaveChangesAsync();
+            db.FoodDiaryEntries.Remove(e);
+            await db.SaveChangesAsync();
         }
     }
 

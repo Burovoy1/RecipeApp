@@ -51,14 +51,22 @@ public partial class FoodDatabaseViewModel : ObservableObject
     [RelayCommand]
     public async Task LoadAsync()
     {
-        var list = await _service.GetAllAsync(SearchText, SelectedCategory);
-        Items = new ObservableCollection<FoodItem>(list);
+        IsLoading = true;
+        try
+        {
+            var list = await _service.GetAllAsync(SearchText, SelectedCategory);
+            Items = new ObservableCollection<FoodItem>(list);
 
-        var cats = await _service.GetCategoriesAsync();
-        var allCats = new[] { "Все" }.Concat(cats).ToList();
-        Categories = new ObservableCollection<string>(allCats);
+            var cats = await _service.GetCategoriesAsync();
+            var allCats = new[] { "Все" }.Concat(cats).ToList();
+            Categories = new ObservableCollection<string>(allCats);
 
-        if (!allCats.Contains(SelectedCategory)) SelectedCategory = "Все";
+            if (!allCats.Contains(SelectedCategory)) SelectedCategory = "Все";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
     }
 
     [RelayCommand]
